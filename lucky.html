@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔮 AI神算子 | 免费算命</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            font-family: 'Segoe UI', 'PingFang SC', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 漂浮星星 */
+        .star {
+            position: fixed;
+            color: gold;
+            font-size: 20px;
+            pointer-events: none;
+            animation: floatStar 3s ease-in-out forwards;
+            z-index: 999;
+        }
+
+        @keyframes floatStar {
+            0% {
+                opacity: 1;
+                transform: translateY(0) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100px) rotate(360deg);
+            }
+        }
+
+        .container {
+            background: rgba(255,255,255,0.95);
+            border-radius: 50px;
+            max-width: 550px;
+            width: 100%;
+            padding: 40px 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.6s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        h1 {
+            font-size: 42px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .emoji-big {
+            font-size: 60px;
+            margin: 20px 0;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .input-group {
+            margin: 25px 0;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            transition: all 0.3s;
+            font-family: inherit;
+            text-align: center;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #f5576c;
+            box-shadow: 0 0 0 3px rgba(245,87,108,0.2);
+        }
+
+        button {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 14px 35px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:active {
+            transform: scale(0.96);
+        }
+
+        .result-box {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #fff5f5 0%, #fff0f0 100%);
+            border-radius: 30px;
+            display: none;
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fortune-text {
+            font-size: 20px;
+            font-weight: bold;
+            color: #f5576c;
+            margin: 15px 0;
+            line-height: 1.5;
+        }
+
+        .advice {
+            color: #666;
+            font-size: 14px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #ddd;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top-color: #f5576c;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .counter {
+            font-size: 12px;
+            color: #999;
+            margin-top: 20px;
+        }
+
+        .share-btn {
+            background: #4CAF50;
+            margin-top: 15px;
+            font-size: 14px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="emoji-big">🔮✨</div>
+    <h1>AI 神算子</h1>
+    <div class="subtitle">· 心诚则灵 ·</div>
+
+    <div class="input-group">
+        <input type="text" id="name" placeholder="输入你的名字或昵称" autocomplete="off">
+    </div>
+
+    <div class="input-group">
+        <input type="text" id="question" placeholder="想问什么？如：爱情/学业/财运..." autocomplete="off">
+    </div>
+
+    <button onclick="tellFortune()">🔮 开始算命 🔮</button>
+
+    <div id="result" class="result-box">
+        <div id="fortuneContent"></div>
+    </div>
+
+    <div class="counter">✨ 已为 10,284 人指点迷津 ✨</div>
+</div>
+
+<script>
+    // 搞笑运势库
+    const fortunes = [
+        { text: "🌟 大吉！今天会有意外之财，可能是路边捡到5毛钱！", luck: "🍀 好运爆棚" },
+        { text: "💔 爱情运一般，你的暗恋对象可能也在暗恋别人...加油吧！", luck: "😅 还需努力" },
+        { text: "📚 学业运极佳！考试时选择题全蒙对，填空题全填错！", luck: "🎓 奇葩学霸" },
+        { text: "💰 财运：建议今天不要买彩票，省下的钱可以买杯奶茶。", luck: "🧋 实在建议" },
+        { text: "❤️ 你的真命天子/天女，正在5公里外刷手机，快出门偶遇！", luck: "🏃 心动不如行动" },
+        { text: "🎓 中考运势：会的全对，蒙的全中，考完记得请我喝奶茶！", luck: "🥤 必中预言" },
+        { text: "😱 警告！今天不宜表白，不宜考试，宜睡觉！", luck: "💤 躺平万岁" },
+        { text: "🌸 桃花运爆棚！今天会有3个人偷偷看你，可能是错觉。", luck: "👀 自信即巅峰" },
+        { text: "🤔 你现在的烦恼，3天后会觉得是小事。除非3天后更烦恼。", luck: "🌀 哲学大师" },
+        { text: "💪 你是潜力股！未来会成为很厉害的人，前提是先写完作业。", luck: "📝 现实建议" },
+        { text: "🎉 恭喜！你即将迎来好运，因为能看到这条算命说明你很有品味！", luck: "✨ 自夸模式" },
+        { text: "📱 学业运：放下手机，成绩+50分。拿起来，再-30分。", luck: "📖 自己看着办" },
+        { text: "💖 爱情提示：你喜欢的人，可能在等你主动。或者根本不认识你。", luck: "😳 扎心了" },
+        { text: "🍜 今日幸运食物：辣条。吃完会变聪明，假的。", luck: "🌶️ 开心就好" }
+    ];
+
+    // 搞笑评论
+    const comments = [
+        "（AI算命仅供娱乐，认真你就输了）",
+        "（不准的话，说明你命由你不由天）",
+        "（本算命系统由懒癌晚期患者开发）",
+        "（信则有，不信则...也有）",
+        "（转发这条算命，好运加倍！假的）",
+        "（本结果由随机算法生成，概不负责）"
+    ];
+
+    function createStars() {
+        for (let i = 0; i < 30; i++) {
+            setTimeout(() => {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.innerHTML = ['✨', '⭐', '🌟', '💫', '🔮'][Math.floor(Math.random() * 5)];
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                document.body.appendChild(star);
+                setTimeout(() => star.remove(), 3000);
+            }, i * 100);
+        }
+    }
+
+    function tellFortune() {
+        const name = document.getElementById('name').value.trim();
+        const question = document.getElementById('question').value.trim();
+
+        if (!name) {
+            alert('💡 随便输入个名字吧，哪怕是"匿名"也行~');
+            return;
+        }
+
+        // 显示加载动画
+        const resultDiv = document.getElementById('result');
+        const fortuneContent = document.getElementById('fortuneContent');
+        resultDiv.style.display = 'block';
+        fortuneContent.innerHTML = '<div class="loading"></div><p style="margin-top:15px;">正在向宇宙发送信号...</p>';
+
+        // 随机选择运势
+        setTimeout(() => {
+            const randomFortune = fortunes[Math.floor(Math.random() * fortunes.length)];
+            const randomComment = comments[Math.floor(Math.random() * comments.length)];
+            const randomNumber = Math.floor(Math.random() * 100) + 1;
+
+            let questionText = '';
+            if (question) {
+                questionText = `<p style="color:#888;">📌 问题：${escapeHtml(question)}</p>`;
+            }
+
+            fortuneContent.innerHTML = `
+                ${questionText}
+                <div style="font-size: 48px; margin: 10px 0;">🔮</div>
+                <div class="fortune-text">✨ ${escapeHtml(randomFortune.text)} ✨</div>
+                <div style="background: white; border-radius: 20px; padding: 10px; margin: 10px 0;">
+                    🎯 ${escapeHtml(name)} 的幸运指数：${randomNumber}%
+                </div>
+                <div style="font-size: 14px; color: #f5576c; margin: 10px 0;">
+                    ${randomFortune.luck}
+                </div>
+                <div class="advice">
+                    💡 ${randomComment}<br><br>
+                    ⭐ 记住：命运掌握在自己手中，这只是个玩笑 😄
+                </div>
+            `;
+
+            createStars();
+            
+            // 添加震动效果（可选）
+            const container = document.querySelector('.container');
+            container.style.transform = 'scale(1.02)';
+            setTimeout(() => {
+                container.style.transform = 'scale(1)';
+            }, 200);
+            
+        }, 1200);
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // 回车键触发
+    document.getElementById('question').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            tellFortune();
+        }
+    });
+</script>
+</body>
+</html>
