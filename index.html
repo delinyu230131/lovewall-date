@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>对象领取模拟器 - 真香版</title>
+    <style>
+        body { text-align: center; font-family: sans-serif; margin-top: 50px; }
+        img { max-width: 400px; border-radius: 20px; margin-top: 20px; box-shadow: 0 0 10px #ccc; }
+        input, button { padding: 10px; margin: 10px; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <h1>🎁 对象领取模拟器（附带照片版）</h1>
+    <p>请输入暗号 <strong style="color:red">“我要对象”</strong> ，领取你的专属对象照片</p>
+    <input type="text" id="password" placeholder="在这里输入...">
+    <button onclick="getObject()">一键领取</button>
+    <div id="result"></div>
+
+    <script>
+        function getObject() {
+            var input = document.getElementById('password').value;
+            var resultDiv = document.getElementById('result');
+            
+            if (input === "我要对象") {
+                // 1. 搞笑的文字结果
+                var funnyTexts = [
+                    "🎉 恭喜你获得：一只会劈叉的蟑螂",
+                    "💖 恭喜你获得：正在拉屎的企鹅表情包",
+                    "🍗 恭喜你获得：三天前的炸鸡腿一个",
+                    "🐉 恭喜你获得：病娇奶龙（已黑化）",
+                    "🦊 恭喜你获得：两只对视的福瑞"
+                ];
+                
+                // 2. 对应的搞笑图片链接（你可以换成自己找的图片链接）
+                // 提示：这些是我为了演示找的示例图片链接，你最好替换成真实的。
+                var funnyImages = [
+                    "https://pic.imgdb.cn/item/65c7d29f9f345e8d032f4e3a.jpg",  // 示例：搞笑蟑螂
+                    "https://pic.imgdb.cn/item/65c7d2c09f345e8d032f6b1c.jpg",  // 示例：搞笑企鹅
+                    "https://pic.imgdb.cn/item/65c7d2e19f345e8d032f8d2e.jpg",  // 示例：炸鸡腿
+                    "https://pic.imgdb.cn/item/65c7d3049f345e8d032fb5f4.jpg",  // 示例：奶龙
+                    "https://pic.imgdb.cn/item/65c7d3299f345e8d032fe0a2.jpg"   // 示例：福瑞
+                ];
+                
+                var randomIndex = Math.floor(Math.random() * funnyTexts.length);
+                
+                // 在结果区域显示文字和图片
+                resultDiv.innerHTML = `
+                    <h2>${funnyTexts[randomIndex]}</h2>
+                    <img src="${funnyImages[randomIndex]}" alt="恶搞图片" onerror="this.src='https://via.placeholder.com/400?text=图片加载失败+但恶搞成功'">
+                    <p>🤡 惊不惊喜？意不意外？</p>
+                `;
+            } else {
+                resultDiv.innerHTML = "<p style='color:red; margin-top:30px'>❌ 暗号错误！请诚心输入“我要对象”</p>";
+            }
+        }
+    </script>
+</body>
+</html>
